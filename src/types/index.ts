@@ -98,4 +98,5 @@ export interface User {
   phone?: string;
   avatar?: string;
   memberSince: string;
+  role?: 'customer' | 'admin';
 }

@@ -20,6 +20,7 @@ import { getProductById, getRelatedProducts } from '@/services/productService';
 import { Product } from '@/types';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
+import { useInventory } from '@/context/InventoryContext';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ProductStickyBar } from '@/components/product/ProductStickyBar';
 import { formatPrice } from '@/utils/formatters';
@@ -69,6 +70,10 @@ export default function ProductDetailPage() {
   const { addToCart, setIsCartOpen } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated, openAuthModal } = useAuth();
+  const { getStock, isOutOfStock } = useInventory();
+
+  const liveStock = product ? getStock(product.id) : 0;
+  const outOfStock = product ? isOutOfStock(product.id) : false;
 
   React.useEffect(() => {
     if (productId) {
@@ -93,7 +98,7 @@ export default function ProductDetailPage() {
   const isLiked = product ? isInWishlist(product.id) : false;
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || outOfStock) return;
     if (!isAuthenticated) {
       openAuthModal(() => {
         addToCart(product, quantity, selectedColor, selectedSize);
@@ -115,7 +120,7 @@ export default function ProductDetailPage() {
   };
 
   const handleBuyNow = () => {
-    if (!product) return;
+    if (!product || outOfStock) return;
     if (!isAuthenticated) {
       openAuthModal(() => {
         addToCart(product, quantity, selectedColor, selectedSize);
@@ -217,7 +222,7 @@ export default function ProductDetailPage() {
                   onClick={() => setSelectedImage(idx)}
                   className={`w-16 h-16 rounded-xl border-2 overflow-hidden bg-slate-50 transition shrink-0 cursor-pointer ${
                     selectedImage === idx
-                      ? 'border-blue-600 ring-2 ring-blue-500/30'
+                      ? 'border-amber-600 ring-2 ring-amber-500/30'
                       : 'border-slate-200 opacity-60 hover:opacity-100'
                   }`}
                 >
@@ -246,10 +251,17 @@ export default function ProductDetailPage() {
                 )}
               </div>
               <div className="flex items-center space-x-2 text-xs">
-                <span className="text-emerald-800 font-extrabold flex items-center space-x-1 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Verified Stock ({product.stock} Units)</span>
-                </span>
+                {outOfStock ? (
+                  <span className="text-rose-800 font-extrabold flex items-center space-x-1 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                    <span className="w-2 h-2 rounded-full bg-rose-600 mr-1 animate-pulse" />
+                    <span>Out of Stock (0 Units Available)</span>
+                  </span>
+                ) : (
+                  <span className="text-emerald-800 font-extrabold flex items-center space-x-1 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Verified Stock ({liveStock} Units Available)</span>
+                  </span>
+                )}
               </div>
             </div>
 
@@ -369,22 +381,24 @@ export default function ProductDetailPage() {
                 <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3.5 py-2 text-slate-600 hover:bg-slate-200 transition font-bold cursor-pointer"
+                    disabled={outOfStock || quantity <= 1}
+                    className="px-3.5 py-2 text-slate-600 hover:bg-slate-200 transition font-bold disabled:opacity-40 cursor-pointer"
                   >
                     -
                   </button>
                   <span className="px-4 py-2 text-xs font-black text-slate-900">
-                    {quantity}
+                    {outOfStock ? 0 : quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3.5 py-2 text-slate-600 hover:bg-slate-200 transition font-bold cursor-pointer"
+                    onClick={() => setQuantity(Math.min(liveStock, quantity + 1))}
+                    disabled={outOfStock || quantity >= liveStock}
+                    className="px-3.5 py-2 text-slate-600 hover:bg-slate-200 transition font-bold disabled:opacity-40 cursor-pointer"
                   >
                     +
                   </button>
                 </div>
                 <span className="text-xs text-slate-500">
-                  Subtotal: <strong className="text-slate-900">{formatPrice(product.price * quantity)}</strong>
+                  Subtotal: <strong className="text-slate-900">{formatPrice(product.price * (outOfStock ? 0 : quantity))}</strong>
                 </span>
               </div>
             </div>
@@ -411,18 +425,28 @@ export default function ProductDetailPage() {
           <div className="hidden md:flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
             <button
               onClick={handleAddToCart}
-              className="flex-1 bg-[#090e17] hover:bg-[#162232] text-white font-bold text-sm py-3.5 rounded-2xl transition flex items-center justify-center space-x-2 shadow-xs cursor-pointer border border-white/10"
+              disabled={outOfStock}
+              className={`flex-1 font-bold text-sm py-3.5 rounded-2xl transition flex items-center justify-center space-x-2 shadow-xs border ${
+                outOfStock
+                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed border-slate-200'
+                  : 'bg-[#090e17] hover:bg-[#162232] text-white border-white/10 cursor-pointer active:scale-[0.99]'
+              }`}
             >
               <ShoppingBag className="w-4 h-4 text-[#c5a059]" />
-              <span>Add to Cart</span>
+              <span>{outOfStock ? 'Currently Sold Out' : 'Add to Cart'}</span>
             </button>
 
             <button
               onClick={handleBuyNow}
-              className="flex-1 bg-[#0f172a] hover:bg-[#1e293b] text-amber-300 font-bold text-sm py-3.5 rounded-2xl transition shadow-xl border border-amber-500/30 flex items-center justify-center space-x-2 active:scale-[0.99] cursor-pointer"
+              disabled={outOfStock}
+              className={`flex-1 font-bold text-sm py-3.5 rounded-2xl transition shadow-xl border flex items-center justify-center space-x-2 ${
+                outOfStock
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200'
+                  : 'bg-[#0f172a] hover:bg-[#1e293b] text-amber-300 border-amber-500/30 active:scale-[0.99] cursor-pointer'
+              }`}
             >
               <IconFlashSale className="w-4 h-4 text-[#c5a059]" />
-              <span>Direct Wholesale Checkout</span>
+              <span>{outOfStock ? 'Unavailable' : 'Direct Wholesale Checkout'}</span>
             </button>
           </div>
 
@@ -448,8 +472,8 @@ export default function ProductDetailPage() {
 
           {/* Success notice */}
           {addedNotice && (
-            <div className="bg-blue-50 text-blue-900 p-3 rounded-xl text-center text-xs font-bold flex items-center justify-center space-x-2 border border-blue-200 animate-in fade-in">
-              <Check className="w-4 h-4 text-blue-600" />
+            <div className="bg-emerald-50 text-emerald-900 p-3 rounded-xl text-center text-xs font-bold flex items-center justify-center space-x-2 border border-emerald-200 animate-in fade-in">
+              <Check className="w-4 h-4 text-emerald-600" />
               <span>Item added to your cart! Opening drawer...</span>
             </div>
           )}
@@ -465,7 +489,7 @@ export default function ProductDetailPage() {
             onClick={() => setActiveTab('specs')}
             className={`pb-3 text-xs sm:text-sm font-extrabold transition border-b-2 cursor-pointer ${
               activeTab === 'specs'
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-amber-600 text-amber-800'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -475,7 +499,7 @@ export default function ProductDetailPage() {
             onClick={() => setActiveTab('reviews')}
             className={`pb-3 text-xs sm:text-sm font-extrabold transition border-b-2 flex items-center space-x-1.5 cursor-pointer ${
               activeTab === 'reviews'
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-amber-600 text-amber-800'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -566,6 +590,72 @@ export default function ProductDetailPage() {
         quantity={quantity}
         onAddToCart={handleAddToCart}
         onBuyNow={handleBuyNow}
+      />
+
+      {/* Structured SEO Schema (JSON-LD) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@graph': [
+              {
+                '@type': 'BreadcrumbList',
+                itemListElement: [
+                  {
+                    '@type': 'ListItem',
+                    position: 1,
+                    name: 'Home',
+                    item: 'https://beshopable.com',
+                  },
+                  {
+                    '@type': 'ListItem',
+                    position: 2,
+                    name: CATEGORIES.find(c => c.slug === product.category)?.name || product.category,
+                    item: `https://beshopable.com/products?category=${product.category}`,
+                  },
+                  {
+                    '@type': 'ListItem',
+                    position: 3,
+                    name: product.title,
+                    item: `https://beshopable.com/product/${product.id}`,
+                  },
+                ],
+              },
+              {
+                '@type': 'Product',
+                name: product.title,
+                image: product.images,
+                description: product.description,
+                sku: product.skuCode || product.id,
+                brand: {
+                  '@type': 'Brand',
+                  name: product.brand,
+                },
+                offers: {
+                  '@type': 'Offer',
+                  priceCurrency: 'PKR',
+                  price: product.price,
+                  itemCondition: 'https://schema.org/NewCondition',
+                  availability: outOfStock
+                    ? 'https://schema.org/OutOfStock'
+                    : 'https://schema.org/InStock',
+                  seller: {
+                    '@type': 'Organization',
+                    name: 'BeShopable',
+                  },
+                },
+                aggregateRating: product.rating
+                  ? {
+                      '@type': 'AggregateRating',
+                      ratingValue: product.rating,
+                      reviewCount: product.reviewsCount || 12,
+                    }
+                  : undefined,
+              },
+            ],
+          }),
+        }}
       />
 
     </div>

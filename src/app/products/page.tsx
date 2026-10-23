@@ -180,10 +180,10 @@ function ProductsCatalogContent() {
             onClick={() => setIsMobileFilterOpen(true)}
             className="lg:hidden flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition border border-slate-200 cursor-pointer"
           >
-            <SlidersHorizontal className="w-4 h-4 text-blue-600" />
+            <SlidersHorizontal className="w-4 h-4 text-[#b08745]" />
             <span>Filters</span>
             {activeFiltersCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-black flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-[#090e17] text-[#c5a059] text-[10px] font-black flex items-center justify-center">
                 {activeFiltersCount}
               </span>
             )}
@@ -215,7 +215,7 @@ function ProductsCatalogContent() {
           <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center space-x-2 font-black text-slate-900 text-sm">
-                <SlidersHorizontal className="w-4 h-4 text-blue-600" />
+                <SlidersHorizontal className="w-4 h-4 text-[#b08745]" />
                 <span>Filters</span>
               </div>
               {activeFiltersCount > 0 && (
@@ -237,7 +237,7 @@ function ProductsCatalogContent() {
                   onClick={() => setSelectedCategory('all')}
                   className={`w-full text-left px-2.5 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
                     selectedCategory === 'all'
-                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      ? 'bg-amber-50 text-amber-950 font-bold border border-amber-200/60'
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >
@@ -249,7 +249,7 @@ function ProductsCatalogContent() {
                     onClick={() => setSelectedCategory(cat.slug)}
                     className={`w-full text-left px-2.5 py-1.5 rounded-lg font-semibold transition truncate cursor-pointer ${
                       selectedCategory === cat.slug
-                        ? 'bg-blue-50 text-blue-700 font-bold'
+                        ? 'bg-amber-50 text-amber-950 font-bold border border-amber-200/60'
                         : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -263,7 +263,7 @@ function ProductsCatalogContent() {
             <div>
               <div className="flex justify-between items-center mb-1 text-xs font-bold text-slate-900">
                 <span>Max Price:</span>
-                <span className="text-blue-600">{formatPrice(priceRange)}</span>
+                <span className="text-[#b08745] font-extrabold">{formatPrice(priceRange)}</span>
               </div>
               <input
                 type="range"
@@ -272,7 +272,7 @@ function ProductsCatalogContent() {
                 step={250}
                 value={priceRange}
                 onChange={(e) => setPriceRange(Number(e.target.value))}
-                className="w-full accent-blue-600 cursor-pointer"
+                className="w-full accent-[#c5a059] cursor-pointer"
               />
             </div>
 
@@ -284,7 +284,7 @@ function ProductsCatalogContent() {
                   onClick={() => setSelectedBrand('all')}
                   className={`w-full text-left px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer ${
                     selectedBrand === 'all'
-                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      ? 'bg-amber-50 text-amber-950 font-bold border border-amber-200/60'
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >
@@ -296,7 +296,7 @@ function ProductsCatalogContent() {
                     onClick={() => setSelectedBrand(b)}
                     className={`w-full text-left px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer ${
                       selectedBrand === b
-                        ? 'bg-blue-50 text-blue-700 font-bold'
+                        ? 'bg-amber-50 text-amber-950 font-bold border border-amber-200/60'
                         : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -313,7 +313,7 @@ function ProductsCatalogContent() {
                 type="checkbox"
                 checked={inStockOnly}
                 onChange={(e) => setInStockOnly(e.target.checked)}
-                className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+                className="w-4 h-4 accent-[#c5a059] rounded cursor-pointer"
               />
             </div>
 
@@ -324,8 +324,8 @@ function ProductsCatalogContent() {
         <div className="lg:col-span-3">
           {filteredProducts.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/90 shadow-xs space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
-                <Filter className="w-8 h-8" />
+              <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center mx-auto border border-amber-200/60">
+                <Filter className="w-8 h-8 text-[#b08745]" />
               </div>
               <div>
                 <h3 className="text-base font-black text-slate-950">No products match your filters</h3>
@@ -335,7 +335,7 @@ function ProductsCatalogContent() {
               </div>
               <button
                 onClick={resetFilters}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition cursor-pointer"
+                className="bg-[#090e17] hover:bg-[#162232] text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition cursor-pointer border border-white/10"
               >
                 Reset All Filters
               </button>
@@ -382,7 +382,7 @@ function ProductsCatalogContent() {
                     <button
                       onClick={() => setSelectedCategory('all')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg font-semibold cursor-pointer ${
-                        selectedCategory === 'all' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600'
+                        selectedCategory === 'all' ? 'bg-amber-50 text-amber-950 font-bold border border-amber-200/60' : 'text-slate-600'
                       }`}
                     >
                       All
@@ -392,7 +392,7 @@ function ProductsCatalogContent() {
                         key={c.id}
                         onClick={() => setSelectedCategory(c.slug)}
                         className={`w-full text-left px-2.5 py-1.5 rounded-lg font-semibold truncate cursor-pointer ${
-                          selectedCategory === c.slug ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600'
+                          selectedCategory === c.slug ? 'bg-amber-50 text-amber-950 font-bold border border-amber-200/60' : 'text-slate-600'
                         }`}
                       >
                         {c.name}
@@ -405,7 +405,7 @@ function ProductsCatalogContent() {
                 <div>
                   <div className="flex justify-between font-bold text-slate-900 mb-1">
                     <span>Max Price:</span>
-                    <span className="text-blue-600">{formatPrice(priceRange)}</span>
+                    <span className="text-[#b08745] font-extrabold">{formatPrice(priceRange)}</span>
                   </div>
                   <input
                     type="range"
@@ -414,7 +414,7 @@ function ProductsCatalogContent() {
                     step={1000}
                     value={priceRange}
                     onChange={(e) => setPriceRange(Number(e.target.value))}
-                    className="w-full accent-blue-600"
+                    className="w-full accent-[#c5a059]"
                   />
                 </div>
 
@@ -425,7 +425,7 @@ function ProductsCatalogContent() {
                     type="checkbox"
                     checked={inStockOnly}
                     onChange={(e) => setInStockOnly(e.target.checked)}
-                    className="w-4 h-4 accent-blue-600 rounded"
+                    className="w-4 h-4 accent-[#c5a059] rounded"
                   />
                 </div>
               </div>
@@ -434,13 +434,13 @@ function ProductsCatalogContent() {
               <div className="pt-3 border-t border-slate-100 flex gap-2">
                 <button
                   onClick={resetFilters}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs cursor-pointer hover:bg-slate-50"
                 >
                   Reset
                 </button>
                 <button
                   onClick={() => setIsMobileFilterOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl bg-[#090e17] hover:bg-[#162232] text-white font-bold text-xs cursor-pointer border border-white/10"
                 >
                   Apply Filters
                 </button>

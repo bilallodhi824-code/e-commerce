@@ -35,8 +35,13 @@ export const Navbar: React.FC = () => {
   const router = useRouter();
   const { totalItems, setIsCartOpen } = useCart();
   const { wishlist } = useWishlist();
-  const { user, isAuthenticated, openAuthModal, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, openAuthModal, logout } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -169,11 +174,11 @@ export const Navbar: React.FC = () => {
             <form onSubmit={handleSearchSubmit} className="relative flex items-center">
               <input
                 type="text"
-                placeholder="Search smart electronics, active formulas, luxury watches, audio..."
+                placeholder="Search unstitched lawn, pure leather chappals, bridal bedding, attar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                className="w-full bg-[#0b141b] border border-[#162733] rounded-xl pl-11 pr-24 py-2.5 text-xs text-white placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-inner transition-all font-medium"
+                className="w-full bg-[#0b141b] border border-[#162733] rounded-xl pl-11 pr-24 py-2.5 text-xs text-white placeholder-slate-400 outline-none focus:border-[#c5a059] focus:ring-2 focus:ring-amber-500/20 shadow-inner transition-all font-medium"
               />
               <Search className="w-4 h-4 text-slate-400 absolute left-4 pointer-events-none" />
 
@@ -189,7 +194,7 @@ export const Navbar: React.FC = () => {
 
               <button
                 type="submit"
-                className="absolute right-1.5 bg-gradient-to-r from-teal-600 via-cyan-600 to-teal-700 hover:from-teal-500 hover:to-cyan-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow-md shadow-teal-950/40 transition-all cursor-pointer"
+                className="absolute right-1.5 bg-gradient-to-r from-[#c5a059] to-[#936b37] hover:from-[#d8b87d] hover:to-[#b08745] text-slate-950 text-xs font-black px-4 py-1.5 rounded-lg shadow-md shadow-amber-950/40 transition-all cursor-pointer"
               >
                 Search
               </button>
@@ -200,8 +205,8 @@ export const Navbar: React.FC = () => {
               <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="p-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500 font-bold">
                   <span className="flex items-center space-x-1.5 text-slate-700">
-                    <TrendingUp className="w-3.5 h-3.5 text-teal-600" />
-                    <span>Instant Matches</span>
+                    <TrendingUp className="w-3.5 h-3.5 text-[#b08745]" />
+                    <span>Instant Catalog Matches</span>
                   </span>
                   <span className="text-[10px] text-slate-400">{searchSuggestions.length} products found</span>
                 </div>
@@ -212,7 +217,7 @@ export const Navbar: React.FC = () => {
                       key={prod.id}
                       href={`/product/${prod.id}`}
                       onClick={() => setIsSearchFocused(false)}
-                      className="p-3 flex items-center space-x-3 hover:bg-teal-50/60 transition group"
+                      className="p-3 flex items-center space-x-3 hover:bg-amber-50/60 transition group"
                     >
                       <img
                         src={prod.images[0]}
@@ -220,17 +225,17 @@ export const Navbar: React.FC = () => {
                         className="w-11 h-11 object-contain rounded-xl bg-slate-100 p-1 border border-slate-200 group-hover:scale-105 transition-transform shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <span className="text-[10px] font-black text-teal-600 uppercase tracking-wider block">
+                        <span className="text-[10px] font-black text-[#b08745] uppercase tracking-wider block">
                           {prod.brand}
                         </span>
-                        <h4 className="text-xs font-bold text-slate-900 truncate group-hover:text-teal-600 transition-colors">
+                        <h4 className="text-xs font-bold text-slate-900 truncate group-hover:text-amber-800 transition-colors">
                           {prod.title}
                         </h4>
                         <span className="text-xs font-black text-slate-950 mt-0.5 block">
                           {formatPrice(prod.price)}
                         </span>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-teal-600 transform group-hover:translate-x-1 transition-all shrink-0" />
+                      <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-amber-700 transform group-hover:translate-x-1 transition-all shrink-0" />
                     </Link>
                   ))}
                 </div>
@@ -238,7 +243,7 @@ export const Navbar: React.FC = () => {
                 <div className="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
                   <button
                     onClick={handleSearchSubmit}
-                    className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center space-x-1 cursor-pointer"
+                    className="text-xs font-bold text-[#b08745] hover:text-amber-900 inline-flex items-center space-x-1 cursor-pointer"
                   >
                     <span>View all matching items</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -257,25 +262,27 @@ export const Navbar: React.FC = () => {
               aria-label="Wishlist"
             >
               <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              {wishlist.length > 0 && (
-                <span className="absolute top-1 right-1 bg-teal-500 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#060b0f]">
+              {isMounted && wishlist.length > 0 && (
+                <span className="absolute top-1 right-1 bg-[#c5a059] text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#060b0f]">
                   {wishlist.length}
                 </span>
               )}
             </Link>
 
             {/* Account / User Authentication Trigger */}
-            {isAuthenticated && user ? (
+            {isMounted && isAuthenticated && user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="hidden sm:flex items-center space-x-2 p-1.5 pr-3 rounded-xl bg-[#0b141b] border border-[#162733] hover:border-teal-500/40 text-slate-300 hover:text-white transition cursor-pointer"
+                  className="hidden sm:flex items-center space-x-2 p-1.5 pr-3 rounded-xl bg-[#0b141b] border border-[#162733] hover:border-amber-500/40 text-slate-300 hover:text-white transition cursor-pointer"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-600 to-cyan-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#c5a059] to-[#936b37] text-slate-950 font-black text-xs flex items-center justify-center shadow-xs">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="text-left hidden lg:block leading-none">
-                    <span className="text-[10px] text-teal-400 font-bold block uppercase">VIP Member</span>
+                    <span className={`text-[10px] font-bold block uppercase ${isAdmin ? 'text-amber-400' : 'text-amber-300'}`}>
+                      {isAdmin ? 'Admin' : 'VIP Member'}
+                    </span>
                     <span className="text-xs font-black text-white">{user.name.split(' ')[0]}</span>
                   </div>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -286,13 +293,26 @@ export const Navbar: React.FC = () => {
                     <div className="px-3 py-2 border-b border-white/10">
                       <p className="text-xs font-bold text-white truncate">{user.name}</p>
                       <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                      {isAdmin && (
+                        <span className="text-[9px] font-black text-amber-400 uppercase tracking-wider">Administrator</span>
+                      )}
                     </div>
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition mt-1"
+                      >
+                        <LayoutGrid className="w-4 h-4 text-amber-400" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
                     <Link
                       href="/dashboard"
                       onClick={() => setIsUserMenuOpen(false)}
                       className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-white/5 transition mt-1"
                     >
-                      <Package className="w-4 h-4 text-teal-400" />
+                      <Package className="w-4 h-4 text-[#c5a059]" />
                       <span>My Orders &amp; Profile</span>
                     </Link>
                     <button
@@ -313,7 +333,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => openAuthModal()}
                 className="hidden sm:flex items-center space-x-2 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#101f29] transition cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-xl bg-[#0b141b] border border-[#162733] flex items-center justify-center text-teal-400">
+                <div className="w-8 h-8 rounded-xl bg-[#0b141b] border border-[#162733] flex items-center justify-center text-[#c5a059]">
                   <User className="w-4 h-4" />
                 </div>
                 <div className="text-left hidden lg:block">
@@ -333,7 +353,7 @@ export const Navbar: React.FC = () => {
             >
               <ShoppingCart className="w-5 h-5 text-[#c5a059]" />
               <span className="hidden sm:inline text-xs font-black">Cart</span>
-              {totalItems > 0 && (
+              {isMounted && totalItems > 0 && (
                 <span className="bg-[#c5a059] text-slate-950 text-[11px] font-black px-1.5 py-0.5 rounded-full shadow-xs">
                   {totalItems}
                 </span>
@@ -357,15 +377,15 @@ export const Navbar: React.FC = () => {
           <form onSubmit={handleMobileSearchSubmit} className="relative flex items-center">
             <input
               type="text"
-              placeholder="Search products, brands, models..."
+              placeholder="Search lawn, leather shoes, bedding, attar..."
               value={mobileSearchQuery}
               onChange={(e) => setMobileSearchQuery(e.target.value)}
-              className="w-full bg-[#0b141b] border border-[#162733] rounded-xl pl-10 pr-16 py-2 text-xs text-white placeholder-slate-400 outline-none focus:border-teal-500 font-medium"
+              className="w-full bg-[#0b141b] border border-[#162733] rounded-xl pl-10 pr-16 py-2 text-xs text-white placeholder-slate-400 outline-none focus:border-[#c5a059] font-medium"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
             <button
               type="submit"
-              className="absolute right-1.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white text-[11px] font-bold px-3 py-1 rounded-lg cursor-pointer"
+              className="absolute right-1.5 bg-gradient-to-r from-[#c5a059] to-[#936b37] text-slate-950 text-[11px] font-black px-3 py-1 rounded-lg cursor-pointer"
             >
               Go
             </button>
@@ -381,11 +401,11 @@ export const Navbar: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-              className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 text-white font-bold text-xs px-3.5 py-2 rounded-xl border border-white/10 hover:border-teal-500/40 transition-all cursor-pointer font-sans"
+              className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 text-white font-bold text-xs px-3.5 py-2 rounded-xl border border-white/10 hover:border-amber-500/40 transition-all cursor-pointer font-sans"
             >
-              <LayoutGrid className="w-4 h-4 text-teal-400" />
+              <LayoutGrid className="w-4 h-4 text-[#c5a059]" />
               <span>All Departments</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isCategoryOpen ? 'rotate-180 text-teal-400' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isCategoryOpen ? 'rotate-180 text-[#c5a059]' : ''}`} />
             </button>
 
             {isCategoryOpen && (

@@ -7,6 +7,7 @@ import { Product } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
+import { useInventory } from '@/context/InventoryContext';
 import { formatPrice } from '@/utils/formatters';
 import { IconFlashSale, IconCashOnDelivery, IconMarkazVerified } from '@/components/ui/CustomIcons';
 
@@ -19,13 +20,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated, openAuthModal } = useAuth();
+  const { getStock, isOutOfStock, isLowStock } = useInventory();
   const [isAdded, setIsAdded] = useState(false);
+
+  const liveStock = getStock(product.id);
+  const outOfStock = isOutOfStock(product.id);
+  const lowStock = isLowStock(product.id);
 
   const isLiked = isInWishlist(product.id);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (outOfStock) return;
 
     if (!isAuthenticated) {
       openAuthModal(() => {
@@ -56,6 +64,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
 
         {/* Badges Overlay */}
         <div className="absolute top-2.5 left-2.5 flex flex-col space-y-1 z-10 pointer-events-none">
+          {outOfStock ? (
+            <span className="bg-rose-700 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded shadow-xs tracking-wider animate-pulse">
+              Sold Out
+            </span>
+          ) : lowStock ? (
+            <span className="bg-amber-500 text-slate-950 text-[9px] font-black uppercase px-1.5 py-0.5 rounded shadow-xs tracking-wider">
+              Only {liveStock} Left
+            </span>
+          ) : null}
           {product.skuCode && (
             <span className="bg-[#090e17] text-white text-[9px] font-mono font-bold px-1.5 py-0.5 rounded shadow-xs flex items-center space-x-1 border border-white/10">
               <IconMarkazVerified className="w-2.5 h-2.5 text-emerald-400" />
@@ -150,12 +167,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
                   <IconFlashSale className="w-3 h-3 text-amber-600 mr-1" />
                   Limited Factory Stock
                 </span>
-                <span>{product.stock} left</span>
+                <span className={outOfStock ? 'text-rose-600 font-extrabold' : ''}>
+                  {outOfStock ? '0 left (Out of stock)' : `${liveStock} left`}
+                </span>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-amber-500 to-amber-700 h-1.5 rounded-full"
-                  style={{ width: `${Math.min(100, (product.stock / 60) * 100)}%` }}
+                  className={`h-1.5 rounded-full ${
+                    outOfStock
+                      ? 'bg-rose-500'
+                      : 'bg-gradient-to-r from-amber-500 to-amber-700'
+                  }`}
+                  style={{ width: `${Math.min(100, (liveStock / 60) * 100)}%` }}
                 />
               </div>
             </div>
@@ -177,15 +200,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
 
           <button
             onClick={handleQuickAdd}
-            className={`p-2 sm:p-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center cursor-pointer ${
-              isAdded
-                ? 'bg-emerald-700 text-white'
-                : 'bg-[#090e17] text-white hover:bg-[#1c2838] border border-white/10 active:scale-95'
+            disabled={outOfStock}
+            className={`p-2 sm:p-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center ${
+              outOfStock
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200'
+                : isAdded
+                ? 'bg-emerald-700 text-white cursor-pointer'
+                : 'bg-[#090e17] text-white hover:bg-[#1c2838] border border-white/10 active:scale-95 cursor-pointer'
             }`}
-            title="Add to Cart"
-            aria-label="Add to cart"
+            title={outOfStock ? 'Currently Out of Stock' : 'Add to Cart'}
+            aria-label={outOfStock ? 'Out of stock' : 'Add to cart'}
           >
-            {isAdded ? <Check className="w-4 h-4 stroke-[3]" /> : <ShoppingBag className="w-4 h-4 stroke-[2.2]" />}
+            {outOfStock ? (
+              <span className="text-[9px] font-black uppercase px-0.5 text-slate-500">OOS</span>
+            ) : isAdded ? (
+              <Check className="w-4 h-4 stroke-[3]" />
+            ) : (
+              <ShoppingBag className="w-4 h-4 stroke-[2.2]" />
+            )}
           </button>
         </div>
       </div>
